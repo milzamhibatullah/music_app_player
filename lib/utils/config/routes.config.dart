@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app_player/view/home.screen.view.dart';
 import 'package:music_app_player/view/music/music.detail.dart';
+import 'package:music_app_player/viewmodel/music.viewmodel.dart';
 
 ///manage all navigation routes here
 class AppRoutes {
@@ -14,7 +16,11 @@ class AppRoutes {
   static Route<dynamic> generateRoutes(RouteSettings settings) {
     switch (settings.name) {
       case '/':
-        return MaterialPageRoute(builder: (_) => HomeScreen());
+        return MaterialPageRoute(
+            builder: (_) => BlocProvider<MusicBloc>(
+                  create: (context) => MusicBloc(),
+                  child: HomeScreen(),
+                ));
       case '/music-detail':
         return CupertinoPageRoute(
             builder: (_) => MusicDetail(), fullscreenDialog: true);

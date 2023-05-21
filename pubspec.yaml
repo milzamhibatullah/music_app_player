@@ -37,6 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   google_fonts: ^4.0.4
   cached_network_image: ^3.2.3
+  just_audio: ^0.9.33
+  flutter_bloc: ^8.1.3
 
 dev_dependencies:
   flutter_test:
