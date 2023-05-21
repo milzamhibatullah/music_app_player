@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:music_app_player/viewmodel/music.viewmodel.dart';
+import 'package:music_app_player/viewmodel/music.bloc.dart';
 
 import '../model/music/music.state.dart';
 
@@ -197,15 +197,12 @@ class HomeScreen extends StatelessWidget {
                               ///playbutton or pause
                               IconButton(
                                   onPressed: () {
-                                    state is MusicOnPlayState
-                                        ? context.read<MusicBloc>().pause(stateIndex: state.index,index: index)
-                                        : context.read<MusicBloc>().play(index);
+                                    state is MusicOnPlayState &&  context.read<MusicBloc>().musicIndex==index?
+                                         context.read<MusicBloc>().pause(stateIndex: index,index: index)
+                                        : context.read<MusicBloc>().play(index: index);
                                   },
-                                  icon: state is MusicOnPlayState &&
-                                          state.index == index
-                                      ? const Icon(Icons.pause)
-                                      : const Icon(
-                                          Icons.play_circle_fill_rounded))
+                                  icon:   Icon(
+                                      state is MusicOnPlayState &&  context.read<MusicBloc>().musicIndex==index?Icons.pause:  Icons.play_circle_fill_rounded))
                             ],
                           ),
                         ),
