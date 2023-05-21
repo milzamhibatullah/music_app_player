@@ -27,7 +27,7 @@ class HomeScreen extends StatelessWidget {
                 hintText: 'Seach song or artist ...',
                 hintStyle: Theme.of(context).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.normal),
                 enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                    borderRadius: BorderRadius.circular(16.0),
                   borderSide: BorderSide.none
                 ),
               focusedBorder:const OutlineInputBorder(borderSide: BorderSide.none)
@@ -35,62 +35,68 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        height: 60.0,
-        padding: EdgeInsets.symmetric(horizontal: 24.0),
-        decoration: BoxDecoration(
+      bottomNavigationBar: GestureDetector(
+        onTap: (){
+          Navigator.pushNamed(context, '/music-detail');
+        },
+        onDoubleTap: (){},
+        child: Container(
+          height: 60.0,
+          padding: EdgeInsets.symmetric(horizontal: 24.0),
+          decoration: BoxDecoration(
 
-          color: Theme.of(context).colorScheme.primaryContainer,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ///image music
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10.0),
-              child: CachedNetworkImage(
-                imageUrl: imageMusic,
-                fit: BoxFit.cover,
-                height: 40.0,
-                width: 40.0,
-                progressIndicatorBuilder:
-                    (context, url, downloadProgress) =>
-                    CircularProgressIndicator(
-                        value: downloadProgress.progress),
-                errorWidget: (context, url, error) =>
-                const Icon(Icons.error),
+            color: Theme.of(context).colorScheme.primaryContainer,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ///image music
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10.0),
+                child: CachedNetworkImage(
+                  imageUrl: imageMusic,
+                  fit: BoxFit.cover,
+                  height: 40.0,
+                  width: 40.0,
+                  progressIndicatorBuilder:
+                      (context, url, downloadProgress) =>
+                      CircularProgressIndicator(
+                          value: downloadProgress.progress),
+                  errorWidget: (context, url, error) =>
+                  const Icon(Icons.error),
+                ),
               ),
-            ),
-            const SizedBox(
-              width: 16.0,
-            ),
-            Expanded(
-              flex: 1,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Drama Queen',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall!
-                        .copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    'Tayri & Hoop Records',
-                    style:
-                    Theme.of(context).textTheme.labelSmall,
-                  ),
-                ],
+              const SizedBox(
+                width: 16.0,
               ),
-            ),
-            const SizedBox(
-              width: 10.0,
-            ),
-            ///playbutton or pause
-            IconButton(onPressed: (){}, icon: Icon(Icons.pause))
-          ],
+              Expanded(
+                flex: 1,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Drama Queen',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall!
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Tayri & Hoop Records',
+                      style:
+                      Theme.of(context).textTheme.labelSmall,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                width: 10.0,
+              ),
+              ///playbutton or pause
+              IconButton(onPressed: (){}, icon: Icon(Icons.pause))
+            ],
+          ),
         ),
       ),
       body: SafeArea(

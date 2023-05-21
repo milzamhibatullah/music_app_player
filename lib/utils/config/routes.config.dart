@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app_player/view/home.screen.view.dart';
+import 'package:music_app_player/view/music/music.detail.dart';
 
 ///manage all navigation routes here
 class AppRoutes {
   ///define static const route name below
   static const String home = '/';
-  static const String musicDetail ='/music-detail';
-
-
+  static const String musicDetail = '/music-detail';
 
   ///generate route function that returns Route<dynamic>
   ///Apply this function onGenerateRoutes
@@ -16,6 +15,9 @@ class AppRoutes {
     switch (settings.name) {
       case '/':
         return MaterialPageRoute(builder: (_) => HomeScreen());
+      case '/music-detail':
+        return CupertinoPageRoute(
+            builder: (_) => MusicDetail(), fullscreenDialog: true);
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
