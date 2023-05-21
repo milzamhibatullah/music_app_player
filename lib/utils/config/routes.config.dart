@@ -6,6 +6,7 @@ import 'package:music_app_player/view/home.screen.view.dart';
 class AppRoutes {
   ///define static const route name below
   static const String home = '/';
+  static const String musicDetail ='/music-detail';
 
 
 
