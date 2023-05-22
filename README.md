@@ -22,7 +22,7 @@ This repository is music app player created using Flutter framework with Itunes 
 
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
-| `term` | `string` | Term as query to api |
+| `term` | `string` | Term as what you want to search for |
 
 
 
