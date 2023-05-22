@@ -19,6 +19,7 @@ class HomeScreen extends StatelessWidget {
             ///searchbar widget component
             title: SearchBarComponent(
               currentState: currentState,
+              state:state,
             ),
           ),
 
@@ -35,7 +36,7 @@ class HomeScreen extends StatelessWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               child: state is MusicLoadingState
                   ? itemShimmer(context)
-                  : Column(
+                  : state is MusicLoadedErrorState?Container():Column(
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         ///music list

@@ -104,25 +104,25 @@ class MusicBloc extends Cubit<MusicState> with AudioMixin {
   void seekTo({position}) async {
     if(position!=null){
       ///if position not null it means user slide the bar
-      await _player.seek(position);
+       _player.seek(position);
     }else{
       ///if not seek to current position. it used as resume
-      await _player.seek(_player.position);
+       _player.seek(_player.position);
     }
 
     ///then play the audio
-    await _player.play();
+     _player.play();
   }
   ///this function to pause
   @override
   void pause() async {
-    await _player.pause();
+     _player.pause();
   }
 
   ///this function to play music
   @override
   void play() async {
     _player.setUrl(trackPreviewUrl);
-    await _player.play();
+    _player.play();
   }
 }

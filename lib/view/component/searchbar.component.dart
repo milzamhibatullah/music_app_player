@@ -1,26 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:music_app_player/model/music/music.state.dart';
 import 'package:music_app_player/viewmodel/music.bloc.dart';
 
 class SearchBarComponent extends StatelessWidget {
   MusicBloc? currentState;
-
-  SearchBarComponent({Key? key, this.currentState}) :super(key: key);
-  final searchField = TextEditingController();
-
+  MusicState? state;
+  SearchBarComponent({Key? key, this.currentState, this.state}) :super(key: key);
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 40.0,
       child: TextFormField(
+        enabled: true,
+        initialValue: currentState!.search,
         style: Theme
             .of(context)
             .textTheme
             .bodyMedium,
         textInputAction: TextInputAction.search,
-        controller: searchField,
         onFieldSubmitted: (value) async {
           currentState!.search = value.toString();
           await currentState!.fetchSong();
+        },
+        onChanged: (value){
+          currentState!.search=value.toString();
         },
         decoration: InputDecoration(
             contentPadding: const EdgeInsets.all(8.0),
@@ -31,7 +34,6 @@ class SearchBarComponent extends StatelessWidget {
                 .primaryContainer,
             suffixIcon: IconButton(
               onPressed: () async {
-                currentState!.search = searchField.text;
                 await currentState!.fetchSong();
               },
               icon: Icon(
