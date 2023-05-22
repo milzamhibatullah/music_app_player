@@ -184,8 +184,16 @@ class MusicDetail extends StatelessWidget {
                         ),
                         IconButton(
                             onPressed:
-                                currentState.musicIndex == 0 ? null : () {},
-                            icon: Icon(
+                                currentState.musicIndex == 0 ? null : () {
+                                  currentState.musicIndex = currentState.musicIndex!-1;
+                                  currentState.sampleUrlTrack =
+                                  currentState
+                                      .music!
+                                      .results![currentState.musicIndex!]
+                                      .previewUrl!;
+                                  currentState.previousSkip();
+                                },
+                            icon: const Icon(
                               Icons.skip_previous_rounded,
                               size: 60.0,
                             )),
@@ -210,7 +218,16 @@ class MusicDetail extends StatelessWidget {
                               size: 80.0,
                             )),
                         IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              currentState.musicIndex = currentState.musicIndex!+1;
+                              currentState.sampleUrlTrack =
+                              currentState
+                                  .music!
+                                  .results![currentState.musicIndex!]
+                                  .previewUrl!;
+                              currentState.nextSkip();
+
+                            },
                             icon: Icon(Icons.skip_next_rounded, size: 60.0)),
                         Expanded(
                           flex: 1,

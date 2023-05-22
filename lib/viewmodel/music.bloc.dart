@@ -68,10 +68,16 @@ class MusicBloc extends Cubit<MusicState> with AudioMixin {
   }
 
   @override
-  void nextSkip() {}
+  void nextSkip() async{
+    player.setUrl(sampleUrlTrack);
+    await player.play();
+  }
 
   @override
-  void previousSkip() {}
+  void previousSkip() async{
+    player.setUrl(sampleUrlTrack);
+    await player.play();
+  }
 
   @override
   void stop({index}) async {
