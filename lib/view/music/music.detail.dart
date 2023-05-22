@@ -8,14 +8,13 @@ import 'package:music_app_player/viewmodel/music.bloc.dart';
 class MusicDetail extends StatelessWidget {
   var imageMusic =
       'https://is3-ssl.mzstatic.com/image/thumb/Music116/v4/44/d2/fd/44d2fd29-60f8-cbe2-d362-e369fcb8d301/cover.jpg/100x100bb.jpg';
-  Duration currentDuration = Duration.zero;
-  Duration maxDuration = Duration.zero;
 
-  String formatedDuration(s){
+  String formatedDuration(s) {
     var splitTime = s.toString().split('.')[0];
     var formatted = splitTime.split(':');
-    return formatted[1]+':'+formatted[2];
+    return formatted[1] + ':' + formatted[2];
   }
+
   @override
   Widget build(BuildContext context) {
     final currentState = context.read<MusicBloc>();
@@ -33,7 +32,8 @@ class MusicDetail extends StatelessWidget {
               ),
             ),
             title: Text(
-              currentState.music!.results![currentState.musicIndex!].artistName!,
+              currentState
+                  .music!.results![currentState.musicIndex!].artistName!,
               style: Theme.of(context)
                   .textTheme
                   .titleLarge!
@@ -76,14 +76,16 @@ class MusicDetail extends StatelessWidget {
 
                     ///title and artist section
                     Text(
-                      currentState.music!.results![currentState.musicIndex!].trackName!,
+                      currentState
+                          .music!.results![currentState.musicIndex!].trackName!,
                       style: Theme.of(context)
                           .textTheme
                           .headlineMedium!
                           .copyWith(fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      currentState.music!.results![currentState.musicIndex!].artistName!,
+                      currentState.music!.results![currentState.musicIndex!]
+                          .artistName!,
                       style: Theme.of(context)
                           .textTheme
                           .titleSmall!
@@ -103,18 +105,38 @@ class MusicDetail extends StatelessWidget {
                             thumbShape: RoundSliderThumbShape(
                                 enabledThumbRadius: 10.0)),
                         child: Slider(
-                          value: currentDuration.inMilliseconds.toDouble() >
-                                  maxDuration.inMilliseconds.toDouble()
-                              ? 1.0
-                              : currentDuration.inMilliseconds.toDouble(),
+                          value: currentState.currentDuration != null
+                              ? currentState.currentDuration!.inMilliseconds
+                                          .toDouble() >
+                                      currentState.maxDuration!.inMilliseconds
+                                          .toDouble()
+                                  ? 1.0
+                                  : currentState.currentDuration!.inMilliseconds
+                                      .toDouble()
+                              : 0.0,
                           min: 0.0,
-                          max: currentDuration.inMilliseconds.toDouble() >
-                                  maxDuration.inMilliseconds.toDouble()
-                              ? 1.0
-                              : maxDuration.inMilliseconds.toDouble(),
+                          max: currentState.currentDuration != null
+                              ? currentState.currentDuration!.inMilliseconds
+                                          .toDouble() >
+                                      currentState.maxDuration!.inMilliseconds
+                                          .toDouble()
+                                  ? 1.0
+                                  : currentState.maxDuration!.inMilliseconds
+                                      .toDouble()
+                              : 1,
 
                           // label: _currentSliderValue.round().toString(),
-                          onChanged: (double value) {},
+                          onChanged: (double value) {
+                            currentState.pause();
+                            currentState.currentDuration =
+                                Duration(milliseconds: value.toInt());
+                            currentState.emit(MusicOnPlayState(currentDuration: currentState.currentDuration!, maxDuration: currentState.maxDuration!));
+
+                          },
+                          onChangeEnd: (double value){
+                            print(value);
+                            currentState.seekTo(position: Duration(milliseconds: value.toInt()));
+                          },
                         ),
                       ),
                     ),
@@ -132,11 +154,14 @@ class MusicDetail extends StatelessWidget {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            formatedDuration(currentDuration.toString()),
+                            currentState.currentDuration!=null?formatedDuration(
+                                currentState.currentDuration.toString()):'0:00',
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                         ),
-                        Text(formatedDuration(maxDuration.toString()),
+                        Text(
+                           currentState.maxDuration!=null? formatedDuration(
+                                currentState.maxDuration.toString()):'0:00',
                             style: Theme.of(context).textTheme.labelLarge),
                         const SizedBox(
                           width: 10.0,
@@ -158,7 +183,8 @@ class MusicDetail extends StatelessWidget {
                           ),
                         ),
                         IconButton(
-                            onPressed: () {},
+                            onPressed:
+                                currentState.musicIndex == 0 ? null : () {},
                             icon: Icon(
                               Icons.skip_previous_rounded,
                               size: 60.0,
@@ -208,11 +234,11 @@ class MusicDetail extends StatelessWidget {
       },
       listener: (context, state) {
         if (state is MusicOnPlayState) {
-          currentDuration = state.currentDuration;
-          maxDuration = state.maxDuration;
+          currentState.currentDuration = state.currentDuration;
+          currentState.maxDuration = state.maxDuration;
         } else {
-          currentDuration = currentDuration;
-          maxDuration = maxDuration;
+          currentState.currentDuration = currentState.currentDuration;
+          currentState.maxDuration = currentState.maxDuration;
         }
       },
     );

@@ -4,7 +4,7 @@ mixin AudioMixin {
 
   pause() {}
 
-  void seekTo() {}
+  void seekTo({Duration? position}) {}
 
   void previousSkip() {}
 

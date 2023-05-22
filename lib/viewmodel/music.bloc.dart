@@ -14,8 +14,8 @@ class MusicBloc extends Cubit<MusicState> with AudioMixin {
   final player = AudioPlayer();
   StreamSubscription? status;
   StreamSubscription? iDuration;
-  double? currentDuration;
-  double? maxDuration;
+  Duration? currentDuration;
+  Duration? maxDuration;
   MusicModel? music;
   int? musicIndex;
   String search = '';
@@ -80,8 +80,12 @@ class MusicBloc extends Cubit<MusicState> with AudioMixin {
   }
 
   @override
-  void seekTo() async {
-    await player.seek(player.position);
+  void seekTo({position}) async {
+    if(position!=null){
+      await player.seek(position);
+    }else{
+      await player.seek(player.position);
+    }
     await player.play();
   }
 
@@ -92,7 +96,7 @@ class MusicBloc extends Cubit<MusicState> with AudioMixin {
   }
 
   @override
-  void play({stateIndex, index}) async {
+  void play() async {
     print('state : $state');
     player.setUrl(sampleUrlTrack);
     await player.play();
