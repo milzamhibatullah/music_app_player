@@ -11,37 +11,48 @@ import '../model/music/music.state.dart';
 
 class MusicBloc extends Cubit<MusicState> with AudioMixin {
   MusicBloc() : super(MusicInitialState());
-  final player = AudioPlayer();
+  ///initiate audio player
+  final _player = AudioPlayer();
+  ///create stream subscription
   StreamSubscription? status;
-  StreamSubscription? iDuration;
+  /// create observable duration
   Duration? currentDuration;
   Duration? maxDuration;
+  ///observable music model
   MusicModel? music;
+  ///obervable index of music
   int? musicIndex;
+  /// observable search parameter and set default to empty
   String search = '';
-  var sampleUrlTrack = '';
+  /// observable track music url
+  var trackPreviewUrl = '';
 
   void init() async {
+    ///initial song fetch at the geginning
     await fetchSong();
-    if(state is MusicLoadedState){
-    }
+    /// dispose subscription first to prevent crash
     status?.cancel();
-    status = player.playerStateStream.listen((playerState) {
+    /// inititate subscription to as audio player stream
+    status = _player.playerStateStream.listen((playerState) {
+      ///get processing state audio
       final ProcessingState processingState = playerState.processingState;
-      print('processing state $processingState');
+      // print('processing state $processingState');
+      ///validate processing state
       switch (processingState) {
         case ProcessingState.ready:
-          player.positionStream.listen((event) {
+          ///if audio process is ready listen the position current duration
+          _player.positionStream.listen((event) {
             playerState.playing
                 ? emit(
               MusicOnPlayState(
                   currentDuration: event,
                   maxDuration:
-                  player.duration!),
+                  _player.duration!),
             )
                 : emit(MusicOnPauseState());
           });
           break;
+          ///if proccess is complete stop the audio preccess
         case ProcessingState.completed:
           stop(index: musicIndex);
           emit(MusicOnStopState());
@@ -56,6 +67,7 @@ class MusicBloc extends Cubit<MusicState> with AudioMixin {
 
   }
 
+  ///fetch stong function
   Future<void> fetchSong() async {
     try {
       final api = MusicApi();
@@ -67,44 +79,50 @@ class MusicBloc extends Cubit<MusicState> with AudioMixin {
     }
   }
 
+  ///this function to skip next music
   @override
   void nextSkip() async{
-    player.setUrl(sampleUrlTrack);
-    await player.play();
+    _player.setUrl(trackPreviewUrl);
+    await _player.play();
   }
-
+  ///this function to skip previous music
   @override
   void previousSkip() async{
-    player.setUrl(sampleUrlTrack);
-    await player.play();
+    _player.setUrl(trackPreviewUrl);
+    await _player.play();
   }
 
+  ///this function to stop music
   @override
   void stop({index}) async {
     musicIndex = index;
-    await player.stop();
+    await _player.stop();
   }
 
+  ///this function to seek music
   @override
   void seekTo({position}) async {
     if(position!=null){
-      await player.seek(position);
+      ///if position not null it means user slide the bar
+      await _player.seek(position);
     }else{
-      await player.seek(player.position);
+      ///if not seek to current position. it used as resume
+      await _player.seek(_player.position);
     }
-    await player.play();
-  }
 
+    ///then play the audio
+    await _player.play();
+  }
+  ///this function to pause
   @override
   void pause() async {
-    await player.pause();
-    //updatePosition();
+    await _player.pause();
   }
 
+  ///this function to play music
   @override
   void play() async {
-    print('state : $state');
-    player.setUrl(sampleUrlTrack);
-    await player.play();
+    _player.setUrl(trackPreviewUrl);
+    await _player.play();
   }
 }

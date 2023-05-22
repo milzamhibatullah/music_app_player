@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
+///item shimmer is widget for item list when loading
 itemShimmer(context) => Shimmer.fromColors(
   baseColor: Theme.of(context).colorScheme.primary.withOpacity(.1),
   enabled: true,

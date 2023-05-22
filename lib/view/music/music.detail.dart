@@ -3,16 +3,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app_player/model/music/music.state.dart';
+import 'package:music_app_player/view/component/player/detail.player.component.dart';
 import 'package:music_app_player/viewmodel/music.bloc.dart';
 
+///this class widget is used as detail after tap from bottom player
 class MusicDetail extends StatelessWidget {
-  var imageMusic =
-      'https://is3-ssl.mzstatic.com/image/thumb/Music116/v4/44/d2/fd/44d2fd29-60f8-cbe2-d362-e369fcb8d301/cover.jpg/100x100bb.jpg';
-
-  String formatedDuration(s) {
+  const MusicDetail({super.key});
+  ///this function to formating duration and return as string
+  String formattedDuration(s) {
     var splitTime = s.toString().split('.')[0];
     var formatted = splitTime.split(':');
-    return formatted[1] + ':' + formatted[2];
+    return '${formatted[1]}:${formatted[2]}';
   }
 
   @override
@@ -53,12 +54,15 @@ class MusicDetail extends StatelessWidget {
                       height: 60.0,
                     ),
 
-                    ///image
+                    ///Image widget for display music art work
                     Center(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20.0),
                         child: CachedNetworkImage(
-                          imageUrl: imageMusic,
+                          imageUrl: currentState
+                              .music!
+                              .results![currentState.musicIndex!]
+                              .artworkUrl100!,
                           fit: BoxFit.contain,
                           height: MediaQuery.of(context).size.height / 4,
                           progressIndicatorBuilder:
@@ -95,7 +99,7 @@ class MusicDetail extends StatelessWidget {
                       height: 20.0,
                     ),
 
-                    ///slider bar player
+                    ///slider bar player to change position and then play seek to
                     SizedBox(
                       width: double.infinity,
                       child: SliderTheme(
@@ -130,12 +134,15 @@ class MusicDetail extends StatelessWidget {
                             currentState.pause();
                             currentState.currentDuration =
                                 Duration(milliseconds: value.toInt());
-                            currentState.emit(MusicOnPlayState(currentDuration: currentState.currentDuration!, maxDuration: currentState.maxDuration!));
-
+                            currentState.emit(MusicOnPlayState(
+                                currentDuration: currentState.currentDuration!,
+                                maxDuration: currentState.maxDuration!));
                           },
-                          onChangeEnd: (double value){
+                          onChangeEnd: (double value) {
                             print(value);
-                            currentState.seekTo(position: Duration(milliseconds: value.toInt()));
+                            currentState.seekTo(
+                                position:
+                                    Duration(milliseconds: value.toInt()));
                           },
                         ),
                       ),
@@ -144,7 +151,7 @@ class MusicDetail extends StatelessWidget {
                       height: 8.0,
                     ),
 
-                    ///duration
+                    ///duration widget start - end
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -154,14 +161,18 @@ class MusicDetail extends StatelessWidget {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            currentState.currentDuration!=null?formatedDuration(
-                                currentState.currentDuration.toString()):'0:00',
+                            currentState.currentDuration != null
+                                ? formattedDuration(
+                                    currentState.currentDuration.toString())
+                                : '0:00',
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                         ),
                         Text(
-                           currentState.maxDuration!=null? formatedDuration(
-                                currentState.maxDuration.toString()):'0:00',
+                            currentState.maxDuration != null
+                                ? formattedDuration(
+                                    currentState.maxDuration.toString())
+                                : '0:00',
                             style: Theme.of(context).textTheme.labelLarge),
                         const SizedBox(
                           width: 10.0,
@@ -173,75 +184,7 @@ class MusicDetail extends StatelessWidget {
                     ),
 
                     ///player
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: SizedBox(
-                            height: 1.0,
-                          ),
-                        ),
-                        IconButton(
-                            onPressed:
-                                currentState.musicIndex == 0 ? null : () {
-                                  currentState.musicIndex = currentState.musicIndex!-1;
-                                  currentState.sampleUrlTrack =
-                                  currentState
-                                      .music!
-                                      .results![currentState.musicIndex!]
-                                      .previewUrl!;
-                                  currentState.previousSkip();
-                                },
-                            icon: const Icon(
-                              Icons.skip_previous_rounded,
-                              size: 60.0,
-                            )),
-                        IconButton(
-                            onPressed: () {
-                              if (state is MusicOnPlayState) {
-                                print('pause');
-                                context.read<MusicBloc>().pause();
-                              } else if (state is MusicOnPauseState) {
-                                print('resume');
-                                context.read<MusicBloc>().seekTo();
-                              } else {
-                                print('play');
-                                context.read<MusicBloc>().play();
-                              }
-                            },
-                            icon: Icon(
-                              state is MusicOnStopState ||
-                                      state is MusicOnPauseState
-                                  ? Icons.play_circle_fill_rounded
-                                  : Icons.pause,
-                              size: 80.0,
-                            )),
-                        IconButton(
-                            onPressed: () {
-                              currentState.musicIndex = currentState.musicIndex!+1;
-                              currentState.sampleUrlTrack =
-                              currentState
-                                  .music!
-                                  .results![currentState.musicIndex!]
-                                  .previewUrl!;
-                              currentState.nextSkip();
-
-                            },
-                            icon: Icon(Icons.skip_next_rounded, size: 60.0)),
-                        Expanded(
-                          flex: 1,
-                          child: SizedBox(
-                            height: 1.0,
-                          ),
-                        ),
-                        // IconButton(
-                        //     onPressed: () {
-                        //       context.read<MusicBloc>().stop();
-                        //     },
-                        //     icon: Icon(Icons.stop_outlined, size: 20.0))
-                      ],
-                    ),
+                    DetailPlayerComponent(currentState: currentState,state: state,),
                   ],
                 ),
               ),

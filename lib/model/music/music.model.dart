@@ -1,15 +1,17 @@
+/// this class model music for handling data about list music
+/// this class generate using json to dart
 class MusicModel {
   int? resultCount;
-  List<Results>? results;
+  List<DataMusic>? results;
 
   MusicModel({this.resultCount, this.results});
 
   MusicModel.fromJson(Map<String, dynamic> json) {
     resultCount = json['resultCount']??0;
     if (json['results'] != null) {
-      results = <Results>[];
+      results = <DataMusic>[];
       json['results'].forEach((v) {
-        results!.add(Results.fromJson(v));
+        results!.add(DataMusic.fromJson(v));
       });
     }else{
       results=[];
@@ -18,7 +20,8 @@ class MusicModel {
 
 }
 
-class Results {
+/// class for handling about music
+class DataMusic {
   String? wrapperType;
   String? kind;
   int? artistId;
@@ -53,7 +56,7 @@ class Results {
   String? primaryGenreName;
   bool? isStreamable;
 
-  Results(
+  DataMusic(
       {this.wrapperType,
         this.kind,
         this.artistId,
@@ -88,7 +91,7 @@ class Results {
         this.primaryGenreName,
         this.isStreamable});
 
-  Results.fromJson(Map<String, dynamic> json) {
+  DataMusic.fromJson(Map<String, dynamic> json) {
     wrapperType = json['wrapperType'];
     kind = json['kind'];
     artistId = json['artistId'];

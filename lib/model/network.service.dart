@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:http/http.dart' as http;
 
+///Network service class is used for handling all request to api
 class NetworkService{
+  ///base url api
   final String _baseUrl = 'https://itunes.apple.com/';
   ///set timeout duration
   final int _duration = 45;

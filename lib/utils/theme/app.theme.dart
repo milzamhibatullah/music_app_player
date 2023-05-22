@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 ///this class to manage all about themes in app
+///check readme.md for generate link
 class AppTheme {
   ///define lightColorScheme
   static const _lightColorScheme = ColorScheme(
