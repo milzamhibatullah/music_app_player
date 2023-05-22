@@ -15,6 +15,7 @@ class MusicDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<MusicBloc, MusicState>(
       builder: (context, state) {
+
         return Scaffold(
           appBar: AppBar(
             centerTitle: true,
@@ -120,7 +121,7 @@ class MusicDetail extends StatelessWidget {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            '0:00',
+                            '$currentDuration',
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                         ),
@@ -153,12 +154,21 @@ class MusicDetail extends StatelessWidget {
                             )),
                         IconButton(
                             onPressed: () {
-                              context.read<MusicBloc>().play(index:context.read<MusicBloc>().musicIndex );
+                              if( state is MusicOnPlayState){
+                                print('pause');
+                                context.read<MusicBloc>().pause();
+                              }else if(state is MusicOnPauseState){
+                                print('resume');
+                                context.read<MusicBloc>().seekTo();
+                              }else{
+                                print('play');
+                                context.read<MusicBloc>().play();
+                              }
                             },
                             icon: Icon(
-                              state is MusicOnPlayState
-                                  ? Icons.pause
-                                  : Icons.play_circle_fill_rounded,
+                              state is MusicOnStopState || state is MusicOnPauseState
+                                  ?Icons.play_circle_fill_rounded
+                                  : Icons.pause,
                               size: 80.0,
                             )),
                         IconButton(
@@ -185,10 +195,14 @@ class MusicDetail extends StatelessWidget {
         );
       },
       listener: (context,state){
-        if(state is MusicOnPlayState){
-          currentDuration=state.currentDuration;
-          maxDuration=state.duration;
-        }
+          if(state is MusicOnPlayState){
+            currentDuration=state.currentDuration;
+            maxDuration=state.maxDuration;
+          }else{
+            currentDuration=currentDuration;
+            maxDuration=maxDuration;
+          }
+
       },
     );
   }

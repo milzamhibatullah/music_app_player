@@ -10,9 +10,42 @@ import '../model/music/music.state.dart';
 class MusicBloc extends Cubit<MusicState> with AudioMixin {
   MusicBloc() : super(MusicInitialState());
   final player = AudioPlayer();
+  StreamSubscription? status;
+  StreamSubscription? iDuration;
+  double? currentDuration;
+  double? maxDuration;
   int? musicIndex;
   final sampleUrlTrack =
       'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/2b/c2/2f/2bc22f1c-8e8e-30ec-ea9e-5e4ee8a4e9a0/mzaf_4981399673600368234.plus.aac.p.m4a';
+
+  void init() {
+    status?.cancel();
+    status = player.playerStateStream.listen((playerState) {
+      final ProcessingState processingState = playerState.processingState;
+      print('processing state $processingState');
+      switch (processingState) {
+        case ProcessingState.ready:
+          player.positionStream.listen((event) {
+            playerState.playing
+                ? emit(
+                    MusicOnPlayState(
+                        currentDuration: event.inMilliseconds.toDouble(),
+                        maxDuration:
+                            player.duration!.inMilliseconds.toDouble()),
+                  )
+                : emit(MusicOnPauseState());
+          });
+          break;
+        case ProcessingState.completed:
+          stop();
+          emit(MusicOnStopState());
+          break;
+        default:
+          emit(MusicOnStopState());
+          break;
+      }
+    });
+  }
 
   @override
   void nextSkip() {}
@@ -21,56 +54,27 @@ class MusicBloc extends Cubit<MusicState> with AudioMixin {
   void previousSkip() {}
 
   @override
-  void stop() async {
-    print('clicked');
-    emit(MusicOnStopState());
+  void stop({index}) async {
+    musicIndex=index;
     await player.stop();
   }
 
   @override
-  void seekTo() {}
+  void seekTo() async{
+    await player.seek(player.position);
+    await player.play();
+  }
 
   @override
   void pause({stateIndex, index}) async {
-    emit(MusicOnPauseState());
     await player.pause();
-  }
-
-  @override
-  void onChange(Change<MusicState> change) {
-    updatePosition();
-  }
-
-  void updatePosition() {
-    player.positionStream.listen((event) {
-      emit(MusicOnPlayState(
-          duration: player.duration!.inMilliseconds.toDouble(),
-          currentDuration: event.inMilliseconds.toDouble()));
-    });
-
+    //updatePosition();
   }
 
   @override
   void play({stateIndex, index}) async {
-    print(state);
-
-    if (state is MusicOnPauseState) {
-      musicIndex=index!;
-      updatePosition();
-      player.play().whenComplete((){
-        print('stop track');
-        emit(MusicOnStopState());
-      });
-    } else {
-      musicIndex=index!;
-      print('jere');
-      player.setUrl(sampleUrlTrack);
-      player.seek(Duration.zero);
-      updatePosition();
-      player.play().whenComplete((){
-        print('stop track');
-        emit(MusicOnStopState());
-      });
-    }
+    print('state : $state');
+    player.setUrl(sampleUrlTrack);
+    await player.play();
   }
 }

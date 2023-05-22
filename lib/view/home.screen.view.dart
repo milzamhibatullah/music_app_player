@@ -197,12 +197,21 @@ class HomeScreen extends StatelessWidget {
                               ///playbutton or pause
                               IconButton(
                                   onPressed: () {
-                                    state is MusicOnPlayState &&  context.read<MusicBloc>().musicIndex==index?
-                                         context.read<MusicBloc>().pause(stateIndex: index,index: index)
-                                        : context.read<MusicBloc>().play(index: index);
+                                    if( state is MusicOnPlayState){
+                                      print('pause');
+                                      context.read<MusicBloc>().pause(stateIndex: index,index: index);
+                                    }else if(state is MusicOnPauseState){
+                                      print('resume');
+                                      context.read<MusicBloc>().seekTo();
+                                    }else{
+                                      print('play');
+                                      context.read<MusicBloc>().musicIndex=index;
+                                      context.read<MusicBloc>().play();
+                                    }
+
                                   },
                                   icon:   Icon(
-                                      state is MusicOnPlayState &&  context.read<MusicBloc>().musicIndex==index?Icons.pause:  Icons.play_circle_fill_rounded))
+                                      state is MusicOnPlayState && context.read<MusicBloc>().musicIndex==index ?Icons.pause:  Icons.play_circle_fill_rounded))
                             ],
                           ),
                         ),

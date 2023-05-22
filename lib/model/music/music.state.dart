@@ -5,37 +5,19 @@ abstract class MusicState extends Equatable {
   List<Object> get props => [];
 }
 
-class MusicInitialState extends MusicState {
-  MusicInitialState();
-}
+class MusicInitialState extends MusicState {}
 
 class MusicOnPlayState extends MusicState {
   final double currentDuration;
-  final double duration;
-
-  MusicOnPlayState(
-      {
-      required this.currentDuration,
-      required this.duration}) ;
+  final double maxDuration;
+  MusicOnPlayState({required this.currentDuration,required this.maxDuration});
 
   @override
-  List<Object> get props =>[currentDuration,duration];
+  List<Object> get props=>[currentDuration,maxDuration];
 }
 
-class MusicOnPauseState extends MusicState {
-  MusicOnPauseState() ;
-  @override
-  List<Object> get props=>[];
+class MusicOnPauseState extends MusicState {}
 
-}
+class MusicOnStopState extends MusicState {}
 
-class MusicOnStopState extends MusicState {
-  MusicOnStopState() ;
-
-  @override
-  List<Object> get props=>[];
-}
-
-class MusicLoadingState extends MusicState {
-  MusicLoadingState();
-}
+class MusicLoadingState extends MusicState {}

@@ -9,7 +9,7 @@ void main() {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider<MusicBloc>(create: (_)=>MusicBloc())
+        BlocProvider<MusicBloc>(create: (_)=>MusicBloc()..init())
       ],
       child: MaterialApp(
         theme: AppTheme.lightData(),
