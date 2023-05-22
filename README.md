@@ -32,7 +32,7 @@ Theme reference is from material design 3. visit [generate custom color](https:/
 
 ## Tech Stack
 
-**Client:** Flutter, Flutter_bloc, Equatable, CachedImageNetwork, Just_Audio, Shimmer
+**Client:** Android Studio, Flutter, Flutter_bloc, Equatable, CachedImageNetwork, Just_Audio, Shimmer
 
 
 
