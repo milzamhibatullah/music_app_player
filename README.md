@@ -1,8 +1,13 @@
 
 
-## Demo
+## Screenshot
+Dark Theme
+![dark _theme](https://github.com/milzamhibatullah/music_app_player/assets/17738884/d5699f02-c3c8-4946-bb25-e58a211a492f)
 
-Insert gif or link to demo
+Light Theme
+
+![light_screenshot](https://github.com/milzamhibatullah/music_app_player/assets/17738884/87634933-0c74-4017-88af-cce3d0dc84f8)
+
 # Music App Player
 This repository is music app player created using Flutter framework with Itunes music api
 
