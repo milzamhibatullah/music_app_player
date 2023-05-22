@@ -125,7 +125,7 @@ class MusicDetail extends StatelessWidget {
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                         ),
-                        Text('3:00',
+                        Text('$maxDuration',
                             style: Theme.of(context).textTheme.labelLarge),
                         const SizedBox(
                           width: 10.0,
