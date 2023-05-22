@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_app_player/model/mixin/audio.mixin.dart';
 import 'package:equatable/equatable.dart';
+import 'package:music_app_player/model/music/music.api.dart';
+import 'package:music_app_player/model/music/music.model.dart';
 
 import '../model/music/music.state.dart';
 
@@ -14,11 +16,15 @@ class MusicBloc extends Cubit<MusicState> with AudioMixin {
   StreamSubscription? iDuration;
   double? currentDuration;
   double? maxDuration;
+  MusicModel? music;
   int? musicIndex;
-  final sampleUrlTrack =
-      'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/2b/c2/2f/2bc22f1c-8e8e-30ec-ea9e-5e4ee8a4e9a0/mzaf_4981399673600368234.plus.aac.p.m4a';
+  String search = '';
+  var sampleUrlTrack = '';
 
-  void init() {
+  void init() async {
+    await fetchSong();
+    if(state is MusicLoadedState){
+    }
     status?.cancel();
     status = player.playerStateStream.listen((playerState) {
       final ProcessingState processingState = playerState.processingState;
@@ -28,16 +34,16 @@ class MusicBloc extends Cubit<MusicState> with AudioMixin {
           player.positionStream.listen((event) {
             playerState.playing
                 ? emit(
-                    MusicOnPlayState(
-                        currentDuration: event.inMilliseconds.toDouble(),
-                        maxDuration:
-                            player.duration!.inMilliseconds.toDouble()),
-                  )
+              MusicOnPlayState(
+                  currentDuration: event,
+                  maxDuration:
+                  player.duration!),
+            )
                 : emit(MusicOnPauseState());
           });
           break;
         case ProcessingState.completed:
-          stop();
+          stop(index: musicIndex);
           emit(MusicOnStopState());
           break;
         default:
@@ -45,6 +51,20 @@ class MusicBloc extends Cubit<MusicState> with AudioMixin {
           break;
       }
     });
+
+
+
+  }
+
+  Future<void> fetchSong() async {
+    try {
+      final api = MusicApi();
+      emit(MusicLoadingState());
+      music = await api.fetchMusic(term: search);
+      Future.delayed(const Duration(milliseconds: 100), () => emit(MusicLoadedState()));
+    } catch (e) {
+      emit(MusicLoadedErrorState());
+    }
   }
 
   @override
@@ -55,18 +75,18 @@ class MusicBloc extends Cubit<MusicState> with AudioMixin {
 
   @override
   void stop({index}) async {
-    musicIndex=index;
+    musicIndex = index;
     await player.stop();
   }
 
   @override
-  void seekTo() async{
+  void seekTo() async {
     await player.seek(player.position);
     await player.play();
   }
 
   @override
-  void pause({stateIndex, index}) async {
+  void pause() async {
     await player.pause();
     //updatePosition();
   }

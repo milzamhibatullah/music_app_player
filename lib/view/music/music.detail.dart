@@ -8,14 +8,19 @@ import 'package:music_app_player/viewmodel/music.bloc.dart';
 class MusicDetail extends StatelessWidget {
   var imageMusic =
       'https://is3-ssl.mzstatic.com/image/thumb/Music116/v4/44/d2/fd/44d2fd29-60f8-cbe2-d362-e369fcb8d301/cover.jpg/100x100bb.jpg';
-  double currentDuration = 0.0;
-  double maxDuration = 0.0;
+  Duration currentDuration = Duration.zero;
+  Duration maxDuration = Duration.zero;
 
+  String formatedDuration(s){
+    var splitTime = s.toString().split('.')[0];
+    var formatted = splitTime.split(':');
+    return formatted[1]+':'+formatted[2];
+  }
   @override
   Widget build(BuildContext context) {
+    final currentState = context.read<MusicBloc>();
     return BlocConsumer<MusicBloc, MusicState>(
       builder: (context, state) {
-
         return Scaffold(
           appBar: AppBar(
             centerTitle: true,
@@ -28,7 +33,7 @@ class MusicDetail extends StatelessWidget {
               ),
             ),
             title: Text(
-              'Tayri & Hoop Records',
+              currentState.music!.results![currentState.musicIndex!].artistName!,
               style: Theme.of(context)
                   .textTheme
                   .titleLarge!
@@ -71,14 +76,14 @@ class MusicDetail extends StatelessWidget {
 
                     ///title and artist section
                     Text(
-                      'DRAMA QUEEN',
+                      currentState.music!.results![currentState.musicIndex!].trackName!,
                       style: Theme.of(context)
                           .textTheme
                           .headlineMedium!
                           .copyWith(fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      'Tayri & Hoop Records',
+                      currentState.music!.results![currentState.musicIndex!].artistName!,
                       style: Theme.of(context)
                           .textTheme
                           .titleSmall!
@@ -98,9 +103,15 @@ class MusicDetail extends StatelessWidget {
                             thumbShape: RoundSliderThumbShape(
                                 enabledThumbRadius: 10.0)),
                         child: Slider(
-                          value: currentDuration>maxDuration?1.0:currentDuration,
+                          value: currentDuration.inMilliseconds.toDouble() >
+                                  maxDuration.inMilliseconds.toDouble()
+                              ? 1.0
+                              : currentDuration.inMilliseconds.toDouble(),
                           min: 0.0,
-                          max:currentDuration> maxDuration?1.0:maxDuration,
+                          max: currentDuration.inMilliseconds.toDouble() >
+                                  maxDuration.inMilliseconds.toDouble()
+                              ? 1.0
+                              : maxDuration.inMilliseconds.toDouble(),
 
                           // label: _currentSliderValue.round().toString(),
                           onChanged: (double value) {},
@@ -121,11 +132,11 @@ class MusicDetail extends StatelessWidget {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            '$currentDuration',
+                            formatedDuration(currentDuration.toString()),
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                         ),
-                        Text('$maxDuration',
+                        Text(formatedDuration(maxDuration.toString()),
                             style: Theme.of(context).textTheme.labelLarge),
                         const SizedBox(
                           width: 10.0,
@@ -154,20 +165,21 @@ class MusicDetail extends StatelessWidget {
                             )),
                         IconButton(
                             onPressed: () {
-                              if( state is MusicOnPlayState){
+                              if (state is MusicOnPlayState) {
                                 print('pause');
                                 context.read<MusicBloc>().pause();
-                              }else if(state is MusicOnPauseState){
+                              } else if (state is MusicOnPauseState) {
                                 print('resume');
                                 context.read<MusicBloc>().seekTo();
-                              }else{
+                              } else {
                                 print('play');
                                 context.read<MusicBloc>().play();
                               }
                             },
                             icon: Icon(
-                              state is MusicOnStopState || state is MusicOnPauseState
-                                  ?Icons.play_circle_fill_rounded
+                              state is MusicOnStopState ||
+                                      state is MusicOnPauseState
+                                  ? Icons.play_circle_fill_rounded
                                   : Icons.pause,
                               size: 80.0,
                             )),
@@ -194,15 +206,14 @@ class MusicDetail extends StatelessWidget {
           ),
         );
       },
-      listener: (context,state){
-          if(state is MusicOnPlayState){
-            currentDuration=state.currentDuration;
-            maxDuration=state.maxDuration;
-          }else{
-            currentDuration=currentDuration;
-            maxDuration=maxDuration;
-          }
-
+      listener: (context, state) {
+        if (state is MusicOnPlayState) {
+          currentDuration = state.currentDuration;
+          maxDuration = state.maxDuration;
+        } else {
+          currentDuration = currentDuration;
+          maxDuration = maxDuration;
+        }
       },
     );
   }

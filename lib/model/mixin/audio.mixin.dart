@@ -1,8 +1,8 @@
 ///this mixin will use or reuse on bloc class
 mixin AudioMixin {
-  void play({ int? index}) {}
+  void play() {}
 
-  pause({ int? index}) {}
+  pause() {}
 
   void seekTo() {}
 
