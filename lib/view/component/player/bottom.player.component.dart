@@ -1,13 +1,23 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:music_app_player/model/audio/audio.state.dart';
+import 'package:music_app_player/viewmodel/audio.bloc.dart';
 import 'package:music_app_player/viewmodel/music.bloc.dart';
 
 import '../../../model/music/music.state.dart';
 
-class BottomPlayerComponent extends StatelessWidget{
-  MusicBloc? currentState;
-  MusicState? state;
-  BottomPlayerComponent({Key? key,this.currentState,this.state}):super(key: key);
+class BottomPlayerComponent extends StatelessWidget {
+  final AudioState audioState;
+  final MusicState musicState;
+  final AudioBloc bloc;
+
+  BottomPlayerComponent(
+      {Key? key,
+      required this.audioState,
+      required this.musicState,
+      required this.bloc})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -28,19 +38,13 @@ class BottomPlayerComponent extends StatelessWidget{
             ClipRRect(
               borderRadius: BorderRadius.circular(10.0),
               child: CachedNetworkImage(
-                imageUrl: currentState!
-                    .music!
-                    .results![currentState!.musicIndex!]
-                    .artworkUrl100!,
+                imageUrl: musicState.dataMusic?.artworkUrl60 ?? '',
                 fit: BoxFit.cover,
                 height: 40.0,
                 width: 40.0,
-                progressIndicatorBuilder:
-                    (context, url, downloadProgress) =>
-                    CircularProgressIndicator(
-                        value: downloadProgress.progress),
-                errorWidget: (context, url, error) =>
-                const Icon(Icons.error),
+                progressIndicatorBuilder: (context, url, downloadProgress) =>
+                    CircularProgressIndicator(value: downloadProgress.progress),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
             const SizedBox(
@@ -53,21 +57,19 @@ class BottomPlayerComponent extends StatelessWidget{
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    currentState!
-                        .music!
-                        .results![currentState!.musicIndex!]
-                        .trackName!,
+                    musicState.dataMusic?.trackName ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: Theme.of(context)
                         .textTheme
                         .titleSmall!
                         .copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    currentState!
-                        .music!
-                        .results![currentState!.musicIndex!]
-                        .artistName!,
+                    musicState.dataMusic?.artistName ?? '',
                     style: Theme.of(context).textTheme.labelSmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -79,18 +81,17 @@ class BottomPlayerComponent extends StatelessWidget{
             ///playbutton or pause
             IconButton(
               onPressed: () {
-                if (state is MusicOnPlayState) {
-                  print('pause');
-                  currentState!.pause();
-                } else if (state is MusicOnPauseState) {
+                if (audioState is AudioOnPlayState) {
+                  bloc.pause();
+                } else if (audioState is AudioOnPauseState) {
                   print('resume');
-                  currentState!.seekTo();
+                  bloc.seekTo();
                 } else {
                   print('play');
-                  currentState!.play();
+                  bloc.play();
                 }
               },
-              icon: state is MusicOnPlayState
+              icon: audioState is AudioOnPlayState
                   ? const Icon(Icons.pause)
                   : const Icon(Icons.play_arrow),
             )

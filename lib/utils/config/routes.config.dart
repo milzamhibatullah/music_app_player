@@ -23,7 +23,7 @@ class AppRoutes {
       case '/music-detail':
         ///use cupertino page route to get transition sliding from bottom to top
         return CupertinoPageRoute(
-            builder: (_) => const MusicDetail(), fullscreenDialog: true);
+            builder: (_) =>  MusicDetail(), fullscreenDialog: true);
       default:
         /// place to another screen if route is not defined
         return MaterialPageRoute(

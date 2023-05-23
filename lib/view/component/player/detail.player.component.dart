@@ -1,14 +1,23 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:music_app_player/model/audio/audio.state.dart';
+import 'package:music_app_player/viewmodel/audio.bloc.dart';
 import 'package:music_app_player/viewmodel/music.bloc.dart';
 
 import '../../../model/music/music.state.dart';
 
 class DetailPlayerComponent extends StatelessWidget {
-  MusicBloc? currentState;
-  MusicState? state;
+  final AudioBloc bloc;
+  final MusicBloc mBloc;
+  final AudioState audioState;
+  final MusicState musicState;
 
-  DetailPlayerComponent({Key? key, this.currentState, this.state})
+  const DetailPlayerComponent(
+      {Key? key,
+      required this.bloc,
+      required this.mBloc,
+      required this.audioState,
+      required this.musicState})
       : super(key: key);
 
   @override
@@ -19,48 +28,62 @@ class DetailPlayerComponent extends StatelessWidget {
       children: [
         ///previous button skip
         IconButton(
-          ///validate if index is 0 disable the button
-            onPressed: currentState!.musicIndex == 0
-                ? null
-                : () {
-                    currentState!.musicIndex = currentState!.musicIndex! - 1;
-                    currentState!.trackPreviewUrl = currentState!
-                        .music!.results![currentState!.musicIndex!].previewUrl!;
-                    currentState!.previousSkip();
-                  },
+
+            ///validate if index is 0 disable the button
+            onPressed:
+                musicState.dataMusic == musicState.musicModel!.results!.first
+                    ?null
+                    : () {
+
+                        final index = musicState.musicModel!.results!
+                            .indexOf(musicState.dataMusic!);
+                        final previousMusic =
+                            musicState.musicModel!.results![index - 1];
+                        mBloc.setSelectedMusic(previousMusic);
+                        bloc.setTrack(musicState.dataMusic!.previewUrl);
+                        bloc.play();
+                      },
             icon: const Icon(
               Icons.skip_previous_rounded,
               size: 60.0,
             )),
+
         ///play button
         IconButton(
             onPressed: () {
-              if (state is MusicOnPlayState) {
+              if (audioState is AudioOnPlayState) {
                 print('pause');
-                currentState!.pause();
-              } else if (state is MusicOnPauseState) {
+                bloc.pause();
+              } else if (audioState is AudioOnPauseState) {
                 print('resume');
-                currentState!.seekTo();
+                bloc.seekTo();
               } else {
                 print('play');
-                currentState!.play();
+                bloc.play();
               }
             },
             icon: Icon(
-              state is MusicOnStopState || state is MusicOnPauseState
+              audioState is AudioOnPauseState || audioState is AudioOnStopState
                   ? Icons.play_circle_fill_rounded
                   : Icons.pause,
               size: 80.0,
             )),
+
         ///button next skip
         IconButton(
-          onPressed: () {
-            currentState!.musicIndex = currentState!.musicIndex! + 1;
-            currentState!.trackPreviewUrl = currentState!
-                .music!.results![currentState!.musicIndex!].previewUrl!;
-            currentState!.nextSkip();
-          },
-          icon: Icon(Icons.skip_next_rounded, size: 60.0),
+          onPressed: musicState.dataMusic ==
+                  musicState.musicModel!.results!.last
+              ? null
+              : () {
+
+                  final index = musicState.musicModel!.results!
+                      .indexOf(musicState.dataMusic!);
+                  final nextMusic = musicState.musicModel!.results![index + 1];
+                  mBloc.setSelectedMusic(nextMusic);
+                  bloc.setTrack(musicState.dataMusic!.previewUrl);
+                  bloc.play();
+                },
+          icon: const Icon(Icons.skip_next_rounded, size: 60.0),
         ),
       ],
     );

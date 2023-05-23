@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_app_player/utils/config/routes.config.dart';
 import 'package:music_app_player/utils/theme/app.theme.dart';
+import 'package:music_app_player/viewmodel/audio.bloc.dart';
 import 'package:music_app_player/viewmodel/music.bloc.dart';
 
 void main() {
@@ -12,7 +13,8 @@ void main() {
     MultiBlocProvider(
       providers: [
         /// run function init when bloc create at first
-        BlocProvider<MusicBloc>(create: (_)=>MusicBloc()..init())
+        BlocProvider<MusicBloc>(create: (_) => MusicBloc()..init()),
+        BlocProvider<AudioBloc>(create: (_) => AudioBloc()..init())
       ],
       child: MaterialApp(
         theme: AppTheme.lightData(),

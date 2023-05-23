@@ -1,9 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_app_player/model/audio/audio.state.dart';
+import 'package:music_app_player/model/music/music.model.dart';
 import 'package:music_app_player/view/component/player/bottom.player.component.dart';
 import 'package:music_app_player/view/component/searchbar.component.dart';
 import 'package:music_app_player/view/component/shimmer/shimmer.component.dart';
+import 'package:music_app_player/viewmodel/audio.bloc.dart';
 import 'package:music_app_player/viewmodel/music.bloc.dart';
 
 import '../model/music/music.state.dart';
@@ -11,59 +14,62 @@ import '../model/music/music.state.dart';
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final currentState = context.read<MusicBloc>();
-    return BlocBuilder<MusicBloc, MusicState>(
-      builder: (context, state) {
-        return Scaffold(
-          appBar: AppBar(
-            ///searchbar widget component
-            title: SearchBarComponent(
-              currentState: currentState,
-              state:state,
-            ),
+    return Builder(builder: (context){
+      final audioState = context.watch<AudioBloc>().state;
+      final musicState = context.watch<MusicBloc>().state;
+      return Scaffold(
+        appBar: AppBar(
+          ///searchbar widget component
+          title: SearchBarComponent(
+            bloc: context.read<MusicBloc>(),
           ),
+        ),
 
-          ///bottom player bar
-          bottomNavigationBar:
-              currentState.music != null && currentState.musicIndex != null
-                  ? BottomPlayerComponent(
-                      currentState: currentState,
-                      state: state,
-                    )
-                  : null,
-          body: SafeArea(
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: state is MusicLoadingState
-                  ? itemShimmer(context)
-                  : state is MusicLoadedErrorState?Container():Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        ///music list
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 20.0),
-                          child: ListView(
-                            shrinkWrap: true,
-                            padding: const EdgeInsets.only(bottom: 20.0),
-                            physics: const NeverScrollableScrollPhysics(),
-                            children: List.generate(
-                              currentState.music!.results!.length,
-                              (index) => _itemList(
-                                  index, currentState, context, state),
-                            ),
+        ///bottom player bar
+        bottomNavigationBar:
+        audioState is AudioOnPlayState || audioState is AudioOnPauseState
+            ? BottomPlayerComponent(
+          audioState: audioState,
+          musicState : musicState,
+          bloc: context.read<AudioBloc>(),
+        )
+            : null,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: musicState is MusicLoadingState
+                ? itemShimmer(context)
+                : musicState is MusicLoadedErrorState?Container(color: Colors.deepOrange,):Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                ///music list
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: ListView(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: List.generate(
+                      musicState.musicModel?.results?.length??0,
+                          (index) => _itemList(
+                            musicState.musicModel!.results![index],
+                            context,
+                            audioState,
+                            musicState
                           ),
-                        )
-                      ],
                     ),
+                  ),
+                )
+              ],
             ),
           ),
-        );
-      },
-    );
+        ),
+      );
+    });
   }
 
   /// widget for item on list music
-  Widget _itemList(index, currentState, context, state) {
+  Widget _itemList(DataMusic dataMusic, BuildContext context, AudioState audioState, MusicState musicState) {
     return Container(
       margin: const EdgeInsets.only(top: 10.0),
       decoration: BoxDecoration(
@@ -78,7 +84,7 @@ class HomeScreen extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(10.0),
               child: CachedNetworkImage(
-                imageUrl: currentState.music!.results![index].artworkUrl100!,
+                imageUrl: dataMusic.artworkUrl100!,
                 fit: BoxFit.cover,
                 height: 60.0,
                 width: 60.0,
@@ -97,20 +103,22 @@ class HomeScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    currentState.music!.results![index].trackName ?? '',
+                    dataMusic.trackName ?? '',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium!
                         .copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    currentState.music!.results![index].artistName ??
-                        'Tayri & Hoop Records',
+                    dataMusic.artistName ??
+                        'No Artist',
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
                   Text(
-                    currentState.music!.results![index].collectionName ??
-                        'Viral Hits 2023 : The Best Tiktok Viral Hits by Hoop Records',
+                    dataMusic.collectionName ??
+                        '-',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.labelSmall!.copyWith(
@@ -126,36 +134,35 @@ class HomeScreen extends StatelessWidget {
             ///playbutton or pause
             IconButton(
                 onPressed: () {
-                  if (state is MusicOnPlayState) {
+                  if (audioState is AudioOnPlayState) {
                     print('pause');
-                    if (currentState.musicIndex == index) {
-                      currentState.pause();
+
+                    if (dataMusic==musicState.dataMusic) {
+                      context.read<AudioBloc>().pause();
                     } else {
-                      currentState.trackPreviewUrl =
-                          currentState.music!.results![index].previewUrl!;
-                      currentState.musicIndex = index;
-                      currentState.play();
+                      context.read<MusicBloc>().setSelectedMusic(dataMusic);
+                      context.read<AudioBloc>().setTrack(dataMusic.previewUrl);
+                      context.read<AudioBloc>().play();
                     }
-                  } else if (state is MusicOnPauseState) {
+                  } else if (audioState is AudioOnPauseState) {
                     print('resume');
-                    if (currentState.musicIndex != index) {
-                      currentState.trackPreviewUrl =
-                          currentState.music!.results![index].previewUrl!;
-                      currentState.musicIndex = index;
-                      currentState.play();
+                    /// when on pause, if same music clicked resume audio
+                    /// if not play new music
+                    if (dataMusic != musicState.dataMusic) {
+                      context.read<MusicBloc>().setSelectedMusic(dataMusic);
+                      context.read<AudioBloc>().setTrack(dataMusic.previewUrl);
+                      context.read<AudioBloc>().play();
                     } else {
-                      currentState.seekTo();
+                      context.read<AudioBloc>().seekTo();
                     }
                   } else {
-                    print('play');
-                    currentState.trackPreviewUrl =
-                        currentState.music!.results![index].previewUrl!;
-                    currentState.musicIndex = index;
-                    currentState.play();
+                    context.read<MusicBloc>().setSelectedMusic(dataMusic);
+                    context.read<AudioBloc>().setTrack(dataMusic.previewUrl);
+                    context.read<AudioBloc>().play();
                   }
                 },
-                icon: Icon(state is MusicOnPlayState &&
-                        currentState.musicIndex == index
+                icon: Icon(audioState is AudioOnPlayState &&
+                        dataMusic==musicState.dataMusic
                     ? Icons.pause
                     : Icons.play_circle_fill_rounded))
           ],

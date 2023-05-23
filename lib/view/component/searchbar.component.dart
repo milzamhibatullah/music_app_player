@@ -3,27 +3,25 @@ import 'package:music_app_player/model/music/music.state.dart';
 import 'package:music_app_player/viewmodel/music.bloc.dart';
 
 class SearchBarComponent extends StatelessWidget {
-  MusicBloc? currentState;
-  MusicState? state;
-  SearchBarComponent({Key? key, this.currentState, this.state}) :super(key: key);
+  final MusicBloc bloc;
+  SearchBarComponent({Key? key,required this.bloc}) :super(key: key);
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 40.0,
       child: TextFormField(
         enabled: true,
-        initialValue: currentState!.search,
         style: Theme
             .of(context)
             .textTheme
             .bodyMedium,
         textInputAction: TextInputAction.search,
         onFieldSubmitted: (value) async {
-          currentState!.search = value.toString();
-          await currentState!.fetchSong();
+          bloc.setSearch(value);
+          await bloc.fetchSong();
         },
         onChanged: (value){
-          currentState!.search=value.toString();
+          bloc.setSearch(value);
         },
         decoration: InputDecoration(
             contentPadding: const EdgeInsets.all(8.0),
@@ -34,7 +32,7 @@ class SearchBarComponent extends StatelessWidget {
                 .primaryContainer,
             suffixIcon: IconButton(
               onPressed: () async {
-                await currentState!.fetchSong();
+                await bloc.fetchSong();
               },
               icon: Icon(
                 Icons.search_rounded,

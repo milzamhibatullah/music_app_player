@@ -11,5 +11,5 @@ mixin AudioMixin {
 
   void nextSkip() {}
 
-  void stop({ int? index}) {}
+  void stop() {}
 }
