@@ -17,7 +17,7 @@ This repository is music app player created using Flutter framework with Itunes 
 #### Get All song
 
 ```http
-  GET /searc?search?term=$term&media=music
+  GET /search?term=$term&media=music
 ```
 
 | Parameter | Type     | Description                |
